@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotes Gelap</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(180deg,#020617,#0f172a);
+      color: #e2e8f0;
+    }
+
+    .login {
+      position: fixed;
+      inset: 0;
+      background: #020617;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    .login-box {
+      background: #0f172a;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .login select, .login input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .login button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #1e293b;
+      color: white;
+      cursor: pointer;
+    }
+
+    header { text-align:center; padding:20px; background:#020617; }
+
+    .controls { text-align:center; padding:20px; }
+
+    .controls input {
+      padding:10px;
+      border-radius:8px;
+      border:none;
+      width:250px;
+    }
+
+    .btn {
+      padding:10px;
+      border-radius:10px;
+      border:none;
+      background:#1e293b;
+      color:white;
+      cursor:pointer;
+      margin-left:5px;
+    }
+
+    .container {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:20px;
+      padding:20px;
+    }
+
+    .card {
+      position:relative;
+      height:300px;
+      border-radius:18px;
+      overflow:hidden;
+      background:#020617;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#64748b;
+      border:2px dashed #334155;
+    }
+
+    .card img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      position:absolute;
+    }
+
+    .actions {
+      position:absolute;
+      bottom:10px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      gap:8px;
+    }
+
+    .action-btn {
+      background:rgba(0,0,0,0.6);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      cursor:pointer;
+    }
+
+    .modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.95);
+      justify-content:center;
+      align-items:center;
+    }
+
+    .modal img { max-width:90%; max-height:90%; }
+  </style>
+</head>
+<body>
+
+<div class="login" id="login">
+  <div class="login-box">
+    <h3>Pilih pertanyaan:</h3>
+    <select id="question">
+      <option value="date">Kapan tanggal jadian kita?</option>
+      <option value="child">Siapa nama anak kita?</option>
+      <option value="sister">Siapa nama adek paling abang sayang?</option>
+    </select>
+    <input type="text" id="answer" placeholder="Masukkan jawaban">
+    <button onclick="checkPassword()">Masuk</button>
+    <p id="error" style="color:red; display:none;">Jawaban salah</p>
+  </div>
+</div>
+
+<header>Quotes Gelap 🌙</header>
+
+<div class="controls">
+  <input type="text" id="imgUrl" placeholder="Masukkan link gambar (GitHub)">
+  <button class="btn" onclick="addImage()">Tambah Gambar</button>
+  <button class="btn" onclick="addFrame()">+ Frame</button>
+</div>
+
+<div class="container" id="gallery"></div>
+
+<div class="modal" id="modal" onclick="closeModal()">
+  <img id="modalImg">
+</div>
+
+<script>
+  function checkPassword() {
+    const q = document.getElementById('question').value;
+    const a = document.getElementById('answer').value.toLowerCase().trim();
+
+    if (
+      (q==='date' && a==='10 januari 2024') ||
+      (q==='child' && a==='kama') ||
+      (q==='sister' && a==='rika')
+    ) {
+      document.getElementById('login').style.display='none';
+    } else {
+      document.getElementById('error').style.display='block';
+    }
+  }
+
+  const gallery=document.getElementById('gallery');
+  const modal=document.getElementById('modal');
+  const modalImg=document.getElementById('modalImg');
+
+  function openModal(src){ modal.style.display='flex'; modalImg.src=src; }
+  function closeModal(){ modal.style.display='none'; }
+
+  function createCard(url=null){
+    const card=document.createElement('div');
+    card.className='card';
+
+    if(url){
+      const img=document.createElement('img');
+      img.src=url;
+      card.appendChild(img);
+    } else {
+      card.textContent='Frame kosong';
+    }
+
+    const actions=document.createElement('div');
+    actions.className='actions';
+
+    const zoom=document.createElement('div');
+    zoom.className='action-btn';
+    zoom.textContent='🔍';
+    zoom.onclick=(e)=>{
+      e.stopPropagation();
+      const img=card.querySelector('img');
+      if(img) openModal(img.src);
+    };
+
+    const delImg=document.createElement('div');
+    delImg.className='action-btn';
+    delImg.textContent='🧹';
+    delImg.onclick=(e)=>{
+      e.stopPropagation();
+      card.innerHTML='Frame kosong';
+      card.appendChild(actions);
+    };
+
+    const delFrame=document.createElement('div');
+    delFrame.className='action-btn';
+    delFrame.textContent='❌';
+    delFrame.onclick=(e)=>{
+      e.stopPropagation();
+      card.remove();
+    };
+
+    actions.appendChild(zoom);
+    actions.appendChild(delImg);
+    actions.appendChild(delFrame);
+
+    card.appendChild(actions);
+    gallery.appendChild(card);
+  }
+
+  function addImage(){
+    const url=document.getElementById('imgUrl').value.trim();
+    if(url){
+      createCard(url);
+      document.getElementById('imgUrl').value='';
+    }
+  }
+
+  function addFrame(){ createCard(); }
+
+  for(let i=0;i<4;i++) createCard();
+</script>
+
+</body>
+</html>
